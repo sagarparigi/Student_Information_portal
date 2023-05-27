@@ -55,6 +55,10 @@ or
    - Click the "Reset Filter" button to clear the filters and display all student details.
    - The grid supports pagination, with the number of records per page specified in the backend API.
 
+4. Database:
+   
+   - MongoDB (NoSQL Database)
+
 
 # Configuration
 
