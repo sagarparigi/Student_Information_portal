@@ -70,7 +70,7 @@ MongoDB Connection:
   
 # Installation and Setup
 
-1 : Clone the repository : git clone https://github.com/sagarparigi/Travelform_applicaiton.git
+1 : Clone the repository : git clone https://github.com/sagarparigi/Student_Information_portal.git
 2 : Install the required dependencies using pip.
 3 : Start the MongoDB server. Make sure it is running on localhost at the default port 27017.
 
