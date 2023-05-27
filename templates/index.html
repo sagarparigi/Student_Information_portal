@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Details</title>
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        
+        th,
+        td {
+            padding: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            font-size: 20px;
+            padding: 8px;
+            text-align: center;
+            border-bottom: 1px solid #5c5b5b;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        form label {
+            font-weight: bold;
+        }
+
+        form input[type="text"] {
+            padding: 5px;
+            width: 200px;
+        }
+
+        form button {
+            padding: 5px 10px;
+        }
+
+        .pagination {
+            margin-top: 20px;
+        }
+
+        .pagination a {
+            padding: 5px 10px;
+            margin-right: 5px;
+            text-decoration: none;
+            background-color: #f2f2f2;
+            color: black;
+            font-size: 20px;
+        }
+
+        .pagination a.active {
+            background-color: #101010;
+            color: white;
+        }
+        nav{
+            height: 60px;
+            margin: 1px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav style="background-color:rgb(84, 81, 81);">
+          <h1 style="color:white; font-size:35px; padding: 10px;">Welcome to Student Information Portal</h1>
+        </nav>
+      </header>
+      <br>
+    <form id="filterForm">
+        <label for="nameFilter" style="font-size: 20px;">Name:</label>
+        <input type="text" id="nameFilter" name="nameFilter">
+
+        <label for="marksFilter" style="font-size: 20px;"> Marks:</label>
+        <input type="text" id="marksFilter" name="marksFilter">
+
+        <button type="submit" style="font-size: 17px;">Apply Filter</button>
+        <button type="button" id="resetFilter" style="font-size: 17px;">Reset Filter</button>
+    </form>
+
+    <table id="studentTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Total Marks</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div class="pagination" id="paginationContainer"></div>
+
+    <script>
+        const pageSize = 15; // Number of records to show per page
+        let currentPage = 1; // Current page number
+
+        // Function to fetch student details and populate the table
+        function fetchStudents(page) {
+            fetch(`http://127.0.0.1:5000/students?page=${page}&page_size=${pageSize}`)
+                .then(response => response.json())
+                .then(data => {
+                    const students = data.students;
+                    const totalRecords = data.total_records;
+
+                    const tableBody = document.querySelector('#studentTable tbody');
+                    tableBody.innerHTML = '';
+
+                    students.forEach(student => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${student.id}</td>
+                            <td>${student.name}</td>
+                            <td>${student.total_marks}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+
+                    // Calculate and render pagination links
+                    renderPagination(totalRecords);
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Function to filter students based on criteria
+        function filterStudents(criteria) {
+            fetch('http://127.0.0.1:5000/students/filter', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(criteria)
+            })
+                .then(response => response.json())
+                .then(students => {
+                    const tableBody = document.querySelector('#studentTable tbody');
+                    tableBody.innerHTML = '';
+
+                    students.forEach(student => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${student.id}</td>
+                            <td>${student.name}</td>
+                            <td>${student.total_marks}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+
+                    // Clear pagination links
+                    document.querySelector('#paginationContainer').innerHTML = '';
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Function to handle form submission and filtering
+        function handleFilterFormSubmit(event) {
+            event.preventDefault();
+
+            const nameFilter = document.querySelector('#nameFilter').value;
+            const marksFilter = document.querySelector('#marksFilter').value;
+
+            const filterCriteria = {};
+            if (nameFilter) {
+                filterCriteria.name = nameFilter;
+            }
+            if (marksFilter) {
+                filterCriteria.total_marks = marksFilter;
+            }
+
+            filterStudents(filterCriteria);
+        }
+
+        // Function to handle filter reset
+        function handleResetFilter() {
+            document.querySelector('#nameFilter').value = '';
+            document.querySelector('#marksFilter').value = '';
+
+            fetchStudents(1);
+        }
+
+        // Function to render pagination links
+        function renderPagination(totalRecords) {
+            const paginationContainer = document.querySelector('#paginationContainer');
+            paginationContainer.innerHTML = '';
+
+            const totalPages = Math.ceil(totalRecords / pageSize);
+
+            for (let i = 1; i <= totalPages; i++) {
+                const link = document.createElement('a');
+                link.href = '#';
+                link.textContent = i;
+
+                if (i === currentPage) {
+                    link.classList.add('active');
+                }
+
+                link.addEventListener('click', () => {
+                    currentPage = i;
+                    fetchStudents(currentPage);
+                });
+
+                paginationContainer.appendChild(link);
+            }
+        }
+
+        // Attach event listeners
+        const filterForm = document.querySelector('#filterForm');
+        filterForm.addEventListener('submit', handleFilterFormSubmit);
+
+        const resetFilterBtn = document.querySelector('#resetFilter');
+        resetFilterBtn.addEventListener('click', handleResetFilter);
+
+        // Initial fetch of student details
+        fetchStudents(currentPage);
+    </script>
+</body>
+</html>
