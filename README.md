@@ -60,6 +60,14 @@ or
    - MongoDB (NoSQL Database)
 
 
+# Other necessary files : 
+
+Here I have written two python scripts :
+
+   - create_randomData.py : This script is used to generate the random data ( ID , Name , Total Marks ) and will store in csv file for further process.
+   - push_data_toMongo.py : This script is used to push data in CSV file to the MongoDB local database and we will use that database for our tasks.
+
+
 # Configuration
 
 MongoDB Connection:
